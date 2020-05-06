@@ -12,5 +12,5 @@ It has generate_test.sh file which create the genesis block a channel file and a
 
 It has configtx.yaml file which has channel policy and orderer related configuration
 
-The Commmand.txt file has all the method in chronological order in which these command should be executed to deploy a chaincode in two peers
+The Commands.txt file has all the method in chronological order in which these command should be executed to deploy a chaincode in two peers
 
