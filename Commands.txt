@@ -1,0 +1,77 @@
+For installing chaincode
+
+for org1
+for binaries
+export PATH=${PWD}${PWD}:$PATH
+
+export CORE_PEER_MSPCONFIGPATH=${PWD}/crypto-config/peerOrganizations/operatorA.telecom-network.com/users/Admin@operatorA.telecom-network.com/msp/
+export PATH=${PWD}/config:${PWD}:$PATH
+5e5edb4508d6c30ee1d3f13dd6e5f5b5492cce002214a2c36332ca2a44f9cb35
+
+export CORE_PEER_TLS_ENABLED=true
+export CORE_PEER_LOCALMSPID="operatorAMSP"
+export CORE_PEER_TLS_ROOTCERT_FILE=${PWD}/crypto-config/peerOrganizations/operatorA.telecom-network.com/peers/peer0.operatorA.telecom-network.com/tls/ca.crt
+export CORE_PEER_MSPCONFIGPATH=${PWD}/crypto-config/peerOrganizations/operatorA.telecom-network.com/users/Admin@operatorA.telecom-network.com/msp/
+export CORE_PEER_ADDRESS=localhost:7051
+
+
+
+[root@docker-repo network]# peer lifecycle chaincode install fabcar.tar.gz
+2020-05-02 20:40:06.847 IST [cli.lifecycle.chaincode] submitInstallProposal -> INFO 001 Installed remotely: response:<status:200 payload:"\nIfabcar_1:5e5edb4508d6c30ee1d3f13dd6e5f5b5492cce002214a2c36332ca2a44f9cb35\022\010fabcar_1" >
+2020-05-02 20:40:06.847 IST [cli.lifecycle.chaincode] submitInstallProposal -> INFO 002 Chaincode code package identifier: 
+
+
+fabcar_1:5e5edb4508d6c30ee1d3f13dd6e5f5b5492cce002214a2c36332ca2a44f9cb35
+
+
+for org2
+
+export PATH=${PWD}${PWD}:$PATH
+
+export CORE_PEER_TLS_ENABLED=true
+export CORE_PEER_LOCALMSPID="operatorBMSP"
+export CORE_PEER_TLS_ROOTCERT_FILE=${PWD}/crypto-config/peerOrganizations/operatorB.telecom-network.com/peers/peer0.operatorB.telecom-network.com/tls/ca.crt
+export CORE_PEER_MSPCONFIGPATH=${PWD}/crypto-config/peerOrganizations/operatorB.telecom-network.com/users/Admin@operatorB.telecom-network.com/msp/
+export CORE_PEER_ADDRESS=localhost:9051
+
+
+fabcar_1:5e5edb4508d6c30ee1d3f13dd6e5f5b5492cce002214a2c36332ca2a44f9cb35
+
+ INFO 002 Chaincode code package identifier: fabcar_1:5e5edb4508d6c30ee1d3f13dd6e5f5b5492cce002214a2c36332ca2a44f9cb35
+
+for Approving chaincode
+fabcar_2:b2ebcc9ecbc96f58a0df0555b5a4176426baf9a99fdcac731676221e91f64194
+
+peer lifecycle chaincode approveformyorg -o localhost:7050 --ordererTLSHostnameOverride orderer.telecom-network.com --channelID mainchannel --name fabcar_1 --version 1.0 --init-required --package-id fabcar_1:5e5edb4508d6c30ee1d3f13dd6e5f5b5492cce002214a2c36332ca2a44f9cb35  --sequence 1 --tls true --cafile ${PWD}/crypto-config/ordererOrganizations/telecom-network.com/orderers/orderer.telecom-network.com/msp/tlscacerts/tlsca.telecom-network.com-cert.pem
+
+for approving chaincode for Org1
+export CORE_PEER_LOCALMSPID="operatorAMSP"
+export CORE_PEER_TLS_ROOTCERT_FILE=${PWD}/crypto-config/peerOrganizations/operatorA.telecom-network.com/peers/peer0.operatorA.telecom-network.com/tls/ca.crt
+export CORE_PEER_MSPCONFIGPATH=${PWD}/crypto-config/peerOrganizations/operatorA.telecom-network.com/users/Admin@operatorA.telecom-network.com/msp/
+export CORE_PEER_ADDRESS=localhost:7051
+
+peer lifecycle chaincode approveformyorg -o localhost:7050 --ordererTLSHostnameOverride orderer.telecom-network.com --channelID mainchannel --name fabcar_2 --version 1.0 --init-required --package-id fabcar_2:b2ebcc9ecbc96f58a0df0555b5a4176426baf9a99fdcac731676221e91f64194 --sequence 1 --tls true --cafile ${PWD}/crypto-config/ordererOrganizations/telecom-network.com/orderers/orderer.telecom-network.com/msp/tlscacerts/tlsca.telecom-network.com-cert.pem
+
+
+
+checkcommitreadiness chaincode
+peer lifecycle chaincode checkcommitreadiness --channelID mainchannel --name fabcar_1 --version 1.0 --init-required --sequence 1 --tls true --cafile ${PWD}/crypto-config/ordererOrganizations/telecom-network.com/orderers/orderer.telecom-network.com/msp/tlscacerts/tlsca.telecom-network.com-cert.pem --output json
+
+Commit Chaincode
+peer lifecycle chaincode commit -o localhost:7050 --ordererTLSHostnameOverride orderer.telecom-network.com --channelID mainchannel --name fabcar_1 --version 1.0 --sequence 1 --init-required --tls true --cafile ${PWD}/crypto-config/ordererOrganizations/telecom-network.com/orderers/orderer.telecom-network.com/msp/tlscacerts/tlsca.telecom-network.com-cert.pem --peerAddresses localhost:7051 --tlsRootCertFiles ${PWD}/crypto-config/peerOrganizations/operatorA.telecom-network.com/peers/peer0.operatorA.telecom-network.com/tls/ca.crt --peerAddresses localhost:9051 --tlsRootCertFiles ${PWD}/crypto-config/peerOrganizations/operatorB.telecom-network.com/peers/peer0.operatorB.telecom-network.com/tls/ca.crt
+
+
+
+peer lifecycle chaincode commit -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --channelID mychannel --name fabcar --version 1.0 --sequence 1 --init-required --tls true --cafile ${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem --peerAddresses localhost:7051 --tlsRootCertFiles ${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt --peerAddresses localhost:9051 --tlsRootCertFiles ${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt
+
+
+Qyuery Commit
+peer lifecycle chaincode querycommitted --channelID mainchannel --name fabcar_2 --cafile ${PWD}/crypto-config/ordererOrganizations/telecom-network.com/orderers/orderer.telecom-network.com/msp/tlscacerts/tlsca.telecom-network.com-cert.pem
+
+
+Invoking chaincode
+peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls true --cafile ${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem -C mychannel -n fabcar --peerAddresses localhost:7051 --tlsRootCertFiles ${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt --peerAddresses localhost:9051 --tlsRootCertFiles ${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt --isInit -c '{"function":"InitLedger","Args":[]}'
+
+peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.telecom-network.com --tls true --cafile ${PWD}/crypto-config/ordererOrganizations/telecom-network.com/orderers/orderer.telecom-network.com/msp/tlscacerts/tlsca.telecom-network.com-cert.pem -C mainchannel -n fabcar_1 --peerAddresses localhost:7051 --tlsRootCertFiles ${PWD}/crypto-config/peerOrganizations/operatorA.telecom-network.com/peers/peer0.operatorA.telecom-network.com/tls/ca.crt --peerAddresses localhost:9051 --tlsRootCertFiles ${PWD}/crypto-config/peerOrganizations/operatorB.telecom-network.com/peers/peer0.operatorB.telecom-network.com/tls/ca.crt --isInit -c '{"function":"InitLedger","Args":[]}'
+
+peer chaincode query -C mainchannel -n fabcar_2 -c '{"Args":["queryAllCars"]}'
